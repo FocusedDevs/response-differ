@@ -4,14 +4,35 @@ response-differ is a python script, which compares responses and prints the resu
 
 ## Usage
 
-### Install dependencies
+### Run locally
+
+#### Prerequisite
+* [Python](https://www.python.org/) is installed
+* [pip](https://pip.pypa.io/en/stable/installation/) is installed
+
+#### Install dependencies
 ```commandline
 pip install -r requirements.txt
 ```
 
-### Run response-differ
+#### Run response-differ
 ```commandline
 python main.py -u http://example.com/one http://example.com/two
+```
+
+### Docker
+
+#### Prerequisite
+* [Docker](https://www.docker.com/) is installed.
+
+#### Build the image
+```commandline
+docker build -t response-differ .
+```
+
+#### Run it
+```commandline
+docker run --rm response-differ --urls http://example.com/one http://example.com/two
 ```
 
 # Description
