@@ -1,4 +1,5 @@
 import json
+import curlparser
 import requests
 import argparse
 from difflib import unified_diff
@@ -45,14 +46,31 @@ def diff_response(url_a: str, url_b: str):
     print('\n')
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser("response-differ")
-    parser.add_argument('-u', '--urls', nargs='+', help='list of URLs you want to compare', required=True)
-    args = parser.parse_args()
-
-    urls = args.urls
+def run_urls(urls: list[str]):
     if len(urls) % 2 != 0:
         raise Exception('urls must be dividable by 2')
 
     for a, b in pairwise(urls):
         diff_response(a, b)
+
+
+def run_curl_files(files: list[str]):
+    with open(files[0]) as f: curl1 = f.read()
+    with open(files[1]) as f: curl2 = f.read()
+
+    request1 = curlparser.parse(curl1)
+    request2 = curlparser.parse(curl2)
+
+    return
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser("response-differ")
+    parser.add_argument('-u', '--urls', nargs='+', help='list of URLs you want to compare')
+    parser.add_argument('-c', '--curl-files', nargs=2, help='list of 2 files to curl commands')
+    args = parser.parse_args()
+
+    if args.urls is not None:
+       run_urls(args.urls)
+    elif args.curl_files is not None:
+        run_curl_files(args.curl_files)
