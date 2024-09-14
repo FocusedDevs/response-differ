@@ -47,7 +47,7 @@ def diff_response(url_a: str, url_b: str):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser("response-differ")
-    parser.add_argument('-u', '--urls', nargs='+', help='<Required> Set flag', required=True)
+    parser.add_argument('-u', '--urls', nargs='+', help='list of URLs you want to compare', required=True)
     args = parser.parse_args()
 
     urls = args.urls
