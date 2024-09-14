@@ -23,18 +23,24 @@ def color_diff(diff):
             yield line
 
 
+def get_json_from_request(url: str) -> list[str]:
+    response = requests.get(url)
+    if not 'application/json' in response.headers.get('Content-Type', ''):
+        raise Exception(f'response header of {url} is not "application/json"')
+
+    return json.dumps(response.json(), indent=4, sort_keys=True).splitlines()
+
+
 def diff_response(url_a: str, url_b: str):
     print(f'------------------- {url_a} vs. {url_b} -------------------')
 
-    response1 = requests.get(url_a)
-    response2 = requests.get(url_b)
-
     d = unified_diff(
-        json.dumps(response1.json(), indent=4, sort_keys=True).splitlines(),
-        json.dumps(response2.json(), indent=4, sort_keys=True).splitlines(),
+        get_json_from_request(url_a),
+        get_json_from_request(url_b),
         lineterm=''
     )
     d = color_diff(d)
+
     print('\n'.join(list(d)))
     print('\n')
 
