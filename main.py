@@ -4,6 +4,7 @@ import requests
 import argparse
 from difflib import unified_diff
 from colorama import Fore
+from urllib3 import request
 
 
 def pairwise(iterable):
@@ -24,10 +25,9 @@ def color_diff(diff):
             yield line
 
 
-def get_json_from_request(url: str) -> list[str]:
-    response = requests.get(url)
+def get_json_from_request(response: requests.Response) -> list[str]:
     if not 'application/json' in response.headers.get('Content-Type', ''):
-        raise Exception(f'response header of {url} is not "application/json"')
+        raise Exception(f'response header of {response.request.url} is not "application/json"')
 
     return json.dumps(response.json(), indent=4, sort_keys=True).splitlines()
 
@@ -36,8 +36,8 @@ def diff_response(url_a: str, url_b: str):
     print(f'------------------- {url_a} vs. {url_b} -------------------')
 
     d = unified_diff(
-        get_json_from_request(url_a),
-        get_json_from_request(url_b),
+        get_json_from_request(requests.get(url_a)),
+        get_json_from_request(requests.get(url_b)),
         lineterm=''
     )
     d = color_diff(d)
@@ -60,6 +60,18 @@ def run_curl_files(files: list[str]):
 
     request1 = curlparser.parse(curl1)
     request2 = curlparser.parse(curl2)
+
+    print(f'------------------- {request1.url} vs. {request2.url} -------------------')
+
+    d = unified_diff(
+        get_json_from_request(requests.request(request1.method, request1.url, auth=request1.auth, data=request1.data, cookies=request1.cookies, json=request1.json, headers=request1.header, verify=request1.verify)),
+        get_json_from_request(requests.request(request2.method, request2.url, auth=request2.auth, data=request2.data, cookies=request2.cookies, json=request2.json, headers=request2.header, verify=request2.verify)),
+        lineterm=''
+    )
+    d = color_diff(d)
+
+    print('\n'.join(list(d)))
+    print('\n')
 
     return
 
